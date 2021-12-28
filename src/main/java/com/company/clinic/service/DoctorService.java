@@ -6,13 +6,12 @@ import com.company.clinic.exception.EntityAlreadyExistsException;
 import com.company.clinic.exception.EntityNotFoundException;
 import com.company.clinic.model.doctor.Doctor;
 import com.company.clinic.repository.DoctorRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class DoctorService {
@@ -48,11 +47,13 @@ public class DoctorService {
                         "Doctor with this NIP already exists", ErrorCode.DOCTOR_ALREADY_EXISTS));
     }
 
-    public List<Doctor> findAll(Pageable paging) {
-        return doctorRepository.findAll(paging)
-                .stream()
-                .filter(Doctor::isActive)
-                .collect(Collectors.toList());
+    public Page<Doctor> findAll(Pageable paging) {
+        return doctorRepository.findDoctorsByActive(true, paging);
+
+//        return doctorRepository.findAll(paging)
+//                .stream()
+//                .filter(Doctor::isActive)
+//                .collect(Collectors.toList());
     }
 
     @Transactional

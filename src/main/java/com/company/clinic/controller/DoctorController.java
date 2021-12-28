@@ -6,6 +6,7 @@ import com.company.clinic.model.doctor.Doctor;
 import com.company.clinic.model.doctor.MedicalSpecialization;
 import com.company.clinic.service.DoctorService;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -44,8 +45,17 @@ public class DoctorController {
         return ResponseEntity.ok(doctorDto);
     }
 
+//    @GetMapping
+//    public ResponseEntity<List<DoctorDto>> getAllDoctors(@PageableDefault(size = 10, page = 0, sort = "lastName") Pageable pageable) {
+//        List<DoctorDto> doctors = doctorService.findAll(pageable)
+//                .stream()
+//                .map(doctor -> modelMapper.map(doctor, DoctorDto.class))
+//                .collect(Collectors.toList());
+//        return ResponseEntity.ok(doctors);
+//    }
+
     @GetMapping
-    public ResponseEntity<List<DoctorDto>> getAllDoctors(@PageableDefault(size = 10, page = 0, sort = "lastName") Pageable pageable) {
+    public Page<DoctorDto> getAllDoctors(@PageableDefault(size = 10, page = 0, sort = "lastName") Pageable pageable) {
         List<DoctorDto> doctors = doctorService.findAll(pageable)
                 .stream()
                 .map(doctor -> modelMapper.map(doctor, DoctorDto.class))
