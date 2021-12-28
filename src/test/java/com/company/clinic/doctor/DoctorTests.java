@@ -78,7 +78,7 @@ public class DoctorTests {
         when(doctorRepository.findAll(any(Pageable.class))).thenReturn(pagedResponse);
 
         //when
-        List<Doctor> doctorsDto = doctorService.findAll(PageRequest.of(0, 10, Sort.Direction.ASC, "lastName"));
+        List<Doctor> doctorsDto = doctorService.findAll(PageRequest.of(0, 10, Sort.Direction.ASC, "lastName")).getContent();
 
         //then
         assertThat(doctors.size()).isEqualTo(doctorsDto.size());
