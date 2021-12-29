@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = UserAlreadyExistsValidator.class)
 public @interface UserAlreadyExists {
-    String message() default "Such user already exists";
+    String message() default "USER_ALREADY_EXISTS";
 
     Class<?>[] groups() default {};
 

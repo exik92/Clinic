@@ -43,16 +43,15 @@ public class VisitService {
 
     @Transactional
     public Visit createVisit(CreateVisitCommand createVisitCommand) {
-        Patient patient = patientRepository.findById(createVisitCommand.getPatientId())
-                .orElseThrow(() -> new EntityNotFoundException("Patient not found"));
-        Doctor doctor = doctorRepository.findById(createVisitCommand.getDoctorId())
-                .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
+        long doctorId = createVisitCommand.getDoctorId();
+        long patientId = createVisitCommand.getPatientId();
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new EntityNotFoundException("PATIENT", patientId));
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new EntityNotFoundException("DOCTOR", doctorId));
 
-        visitRepository.findAll().stream()
-                .filter(visit -> visit.getDoctor().getId() == createVisitCommand.getDoctorId())
-                .forEach(visit -> {
-                    validateDates(visit, createVisitCommand);
-                });
+        visitRepository.findByDoctor_Id(doctorId).forEach(visit -> validateDates(visit, createVisitCommand));
+
         Visit visit = new Visit(
                 doctor,
                 patient,
@@ -75,7 +74,7 @@ public class VisitService {
                 .orElseThrow(() -> new EntityNotFoundException("Token not found"));
         checkIfTokenExpired(visitToken);
         Visit visit = visitRepository.findById(visitToken.getVisit().getId())
-                .orElseThrow(() -> new EntityNotFoundException("Visit not found"));
+                .orElseThrow(() -> new EntityNotFoundException("VISIT", visitToken.getVisit().getId()));
         visit.setStatus(VisitStatus.CONFIRMED);
         return visit;
     }
@@ -86,7 +85,7 @@ public class VisitService {
                 .orElseThrow(() -> new EntityNotFoundException("Token not found"));
         checkIfTokenExpired(visitToken);
         Visit visit = visitRepository.findById(visitToken.getVisit().getId())
-                .orElseThrow(() -> new EntityNotFoundException("Visit not found"));
+                .orElseThrow(() -> new EntityNotFoundException("VISIT", visitToken.getVisit().getId()));
         visit.setStatus(VisitStatus.CANCELLED);
         return visit;
     }

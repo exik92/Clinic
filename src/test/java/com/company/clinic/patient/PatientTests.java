@@ -77,7 +77,7 @@ public class PatientTests {
         when(patientRepository.findAll(any(Pageable.class))).thenReturn(pagedResponse);
 
         //when
-        List<Patient> patientsDto = patientService.findAll(PageRequest.of(0, 10, Sort.Direction.ASC, "nameOfAnimal"));
+        List<Patient> patientsDto = patientService.findAll(PageRequest.of(0, 10, Sort.Direction.ASC, "nameOfAnimal")).getContent();
 
         //then
         assertThat(patients.size()).isEqualTo(patientsDto.size());

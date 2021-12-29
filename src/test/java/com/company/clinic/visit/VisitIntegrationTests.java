@@ -220,7 +220,13 @@ public class VisitIntegrationTests extends IntegrationTest {
 
         // then
         String contentAsString = perform.andReturn().getResponse().getContentAsString();
-        Assertions.assertTrue(contentAsString.contains("DoctorHasFreeTime"));
+        Assertions.assertTrue(contentAsString.contains("DoctorHasFreeTime")); // zmienic na nowa postac resposnea:
+//        {
+//            "exception": "org.springframework.web.bind.MethodArgumentNotValidException",
+//                "exceptionMessage": "Doctor with id: 1 has another visit on this time",
+//                "errorCode": "VALIDATION_ERROR"
+//        }
+
     }
 
     @Test

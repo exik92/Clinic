@@ -24,7 +24,7 @@ public class DoctorService {
 
     public Doctor getDoctorById(long id) {
         return doctorRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Not active doctor found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("DOCTOR", id));
     }
 
     @Transactional
@@ -49,17 +49,12 @@ public class DoctorService {
 
     public Page<Doctor> findAll(Pageable paging) {
         return doctorRepository.findDoctorsByActive(true, paging);
-
-//        return doctorRepository.findAll(paging)
-//                .stream()
-//                .filter(Doctor::isActive)
-//                .collect(Collectors.toList());
     }
 
     @Transactional
     public void fireDoctor(long id) {
         Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Not active doctor found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("DOCTOR", id));
         doctor.setActive(false);
     }
 }

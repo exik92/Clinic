@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = VisitIsExistsAndHasCreatedStatusValidator.class)
 public @interface VisitIsExistsAndHasCreatedStatus {
-    String message () default "Invalid visit state";
+    String message () default "VISIT_STATE_ERROR";
     Class<?>[] groups () default {};
     Class<? extends Payload>[] payload () default {};
 }

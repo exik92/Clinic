@@ -13,7 +13,7 @@ import static java.lang.annotation.ElementType.PARAMETER;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = DoctorNotExistsByNipValidator.class)
 public @interface DoctorNotExistsByNip {
-    String message() default "Doctor with NIP exists";
+    String message() default "DOCTOR_ALREADY_EXISTS";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

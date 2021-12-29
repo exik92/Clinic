@@ -1,4 +1,5 @@
-package com.company.clinic.validation.doctor;
+package com.company.clinic.validation;
+
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -9,9 +10,11 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = DoctorHasFreeTimeValidator.class)
-public @interface DoctorHasFreeTime {
-    String message () default "Doctor is busy, invalid visit date";
-    Class<?>[] groups () default {};
-    Class<? extends Payload>[] payload () default {};
+@Constraint(validatedBy = UserHasFreeTimeValidator.class)
+public @interface UserHasFreeTime {
+    String message() default "VISIT_USER_DATE_ERROR";
+
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
 }

@@ -1,24 +1,19 @@
 package com.company.clinic.command;
 
-import com.company.clinic.validation.doctor.DoctorExistsById;
-import com.company.clinic.validation.patient.PatientExistsById;
-import com.company.clinic.validation.doctor.DoctorHasFreeTime;
-import com.company.clinic.validation.patient.PatientHasFreeTime;
-import com.company.clinic.validation.visit.VisitAlreadyExists;
+import com.company.clinic.validation.UserExistsById;
+import com.company.clinic.validation.UserHasFreeTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@DoctorHasFreeTime
-@PatientHasFreeTime
-@VisitAlreadyExists
+
+@UserHasFreeTime
+@UserExistsById
 public class CreateVisitCommand {
 
-    @DoctorExistsById
     private long doctorId;
 
-    @PatientExistsById
     private long patientId;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
