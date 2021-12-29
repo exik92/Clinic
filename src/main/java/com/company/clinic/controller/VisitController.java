@@ -1,8 +1,10 @@
 package com.company.clinic.controller;
 
 import com.company.clinic.command.CreateVisitCommand;
+import com.company.clinic.command.VisitActionCommand;
 import com.company.clinic.dto.VisitDto;
 import com.company.clinic.model.visit.Visit;
+import com.company.clinic.model.visit.VisitAction;
 import com.company.clinic.service.VisitService;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -30,23 +32,25 @@ public class VisitController {
         return ResponseEntity.status(HttpStatus.CREATED).body(visitDto);
     }
 
-    @GetMapping("/confirm")
-    public ResponseEntity<VisitDto> confirmVisit(@RequestParam String token) {
-        Visit visit = visitService.confirm(token);
+    @PutMapping("/confirm")
+    public ResponseEntity<VisitDto> confirmVisit(@Valid @RequestBody VisitActionCommand visitActionCommand) {
+        visitActionCommand.setActionType(VisitAction.CONFIRM);
+        Visit visit = visitService.confirm(visitActionCommand);
         VisitDto visitDto = modelMapper.map(visit, VisitDto.class);
         return ResponseEntity.status(HttpStatus.OK).body(visitDto);
     }
 
-    @GetMapping("/cancel")
-    public ResponseEntity<VisitDto> cancelVisit(@RequestParam String token) {
-        Visit visit = visitService.cancel(token);
+    @PutMapping("/cancel")
+    public ResponseEntity<VisitDto> cancelVisit(@Valid @RequestBody VisitActionCommand visitActionCommand) {
+        visitActionCommand.setActionType(VisitAction.CANCEL);
+        Visit visit = visitService.cancel(visitActionCommand);
         VisitDto visitDto = modelMapper.map(visit, VisitDto.class);
         return ResponseEntity.status(HttpStatus.OK).body(visitDto);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<VisitDto> getVisitById(@PathVariable(name = "id") long id) {
-        Visit visit = visitService.getStatusOfVisit(id);
+        Visit visit = visitService.getVisitById(id);
         VisitDto visitDto = modelMapper.map(visit, VisitDto.class);
         return ResponseEntity.status(HttpStatus.OK).body(visitDto);
     }

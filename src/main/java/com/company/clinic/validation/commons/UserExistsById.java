@@ -1,5 +1,4 @@
-package com.company.clinic.validation;
-
+package com.company.clinic.validation.commons;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

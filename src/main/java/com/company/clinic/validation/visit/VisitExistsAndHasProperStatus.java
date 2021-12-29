@@ -1,5 +1,4 @@
-package com.company.clinic.validation;
-
+package com.company.clinic.validation.visit;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -10,11 +9,13 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = UserHasFreeTimeValidator.class)
-public @interface UserHasFreeTime {
-    String message() default "VISIT_USER_DATE_ERROR";
+@Constraint(validatedBy = VisitExistsAndHasProperStatusValidator.class)
+public @interface VisitExistsAndHasProperStatus {
+    String message() default "VISIT_STATE_ERROR";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
 }
+
+

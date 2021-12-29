@@ -1,7 +1,7 @@
 package com.company.clinic.command;
 
-import com.company.clinic.validation.UserExistsById;
-import com.company.clinic.validation.UserHasFreeTime;
+import com.company.clinic.validation.commons.UserExistsById;
+import com.company.clinic.validation.commons.UserHasFreeTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;

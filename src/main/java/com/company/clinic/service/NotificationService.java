@@ -1,7 +1,10 @@
 package com.company.clinic.service;
 
-import com.company.clinic.exception.EmailSendException;
+import com.company.clinic.model.visit.Visit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -18,6 +21,8 @@ import java.util.Map;
 @Service
 public class NotificationService {
 
+    private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
+
     @Value(value = "${spring.mail.username}")
     private String sender;
 
@@ -32,22 +37,53 @@ public class NotificationService {
         this.templateEngine = templateEngine;
     }
 
+
     @Async
     public void sendMailForPasswordReset(String token, String email) {
-        try {
-            MimeMessage message = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper;
-            helper = new MimeMessageHelper(message, true);
-            helper.setFrom(sender);
-            helper.setTo(email);
-            helper.setSubject(subject);
-            message.setContent(buildResetMail(token), "text/html");
-            javaMailSender.send(message);
-        } catch (MessagingException exception) {
-            throw new EmailSendException("Failed to send an email");
-        }
+        String emailMessage = buildResetMail(token);
+        sendMail(email, "Password reset", emailMessage);
     }
 
+    @Async
+    public void sendMailForVisitCreation(String email, Visit visit) {
+        String emailMessage =
+                String.format("Visit on %s at Doctor %s has been set up",
+                        visit.getVisitTime().toString(), visit.getDoctor().getFirstName() + visit.getDoctor().getLastName());
+        sendMail(email, subject, emailMessage);
+    }
+
+    @Async
+    public void sendMailForVisitConfirmation(String email, Visit visit) {
+        String emailMessage =
+                String.format("Visit on %s at Doctor %s was confirmed",
+                        visit.getVisitTime().toString(), visit.getDoctor().getFirstName() + visit.getDoctor().getLastName());
+        sendMail(email, subject, emailMessage);
+    }
+
+    @Async
+    public void sendMailForVisitCancellation(String email, Visit visit) {
+        String emailMessage =
+                String.format("Visit on %s at Doctor %s was canceled",
+                        visit.getVisitTime().toString(), visit.getDoctor().getFirstName() + visit.getDoctor().getLastName());
+        sendMail(email, subject, emailMessage);
+    }
+
+    public void sendMail(String emailTo, String emailSubject, String emailMessage) {
+        MimeMessage message = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setFrom(sender);
+            helper.setTo(emailTo);
+            helper.setSubject(emailSubject);
+            helper.setText(emailMessage);
+            javaMailSender.send(message);
+        } catch (MessagingException exc) {
+            logger.error("Error encountered during email sending ", exc);
+        } catch (MailSendException exc) {
+            logger.error("Error encountered during email sending. Trying to send it one more time!", exc);
+            javaMailSender.send(message); // when a mail sending error is encountered try to send email one more time
+        }
+    }
 
     private String buildResetMail(String token) {
         Context context = new Context(Locale.ENGLISH, getEmailVariablesAsMap(token));
