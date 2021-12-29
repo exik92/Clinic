@@ -1,4 +1,4 @@
-package com.company.clinic.validation;
+package com.company.clinic.validation.commons;
 
 import com.company.clinic.command.CreateVisitCommand;
 import com.company.clinic.repository.DoctorRepository;

@@ -75,8 +75,8 @@ public class DoctorTests {
         List<Doctor> doctors = new ArrayList<>();
         doctors.add(doctor);
         Page<Doctor> pagedResponse = new PageImpl<>(doctors);
-        when(doctorRepository.findAll(any(Pageable.class))).thenReturn(pagedResponse);
-
+       // when(doctorRepository.findAll(any(Pageable.class))).thenReturn(pagedResponse);
+        when(doctorRepository.findDoctorsByActive(any(Boolean.class), any(Pageable.class))).thenReturn(pagedResponse);
         //when
         List<Doctor> doctorsDto = doctorService.findAll(PageRequest.of(0, 10, Sort.Direction.ASC, "lastName")).getContent();
 
@@ -112,7 +112,7 @@ public class DoctorTests {
         EntityNotFoundException throwable = (EntityNotFoundException) catchThrowable(() -> doctorService.getDoctorById(1));
 
         //then
-        assertTrue(throwable.getMessage().contains("Not active doctor found with id: 1"));
+        assertTrue(throwable.getMessage().contains("No DOCTOR found with id: 1"));
     }
 
     @Test
@@ -124,7 +124,7 @@ public class DoctorTests {
         EntityNotFoundException throwable = (EntityNotFoundException) catchThrowable(() -> doctorService.fireDoctor(1));
 
         //then
-        assertTrue(throwable.getMessage().contains("Not active doctor found with id: 1"));
+        assertTrue(throwable.getMessage().contains("No DOCTOR found with id: 1"));
     }
 
     @Test

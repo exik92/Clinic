@@ -1,6 +1,7 @@
 package com.company.clinic.service;
 
 import com.company.clinic.command.CreateVisitCommand;
+import com.company.clinic.command.VisitActionCommand;
 import com.company.clinic.exception.EntityNotFoundException;
 import com.company.clinic.exception.TokenExpiredException;
 import com.company.clinic.exception.VisitException;
@@ -64,30 +65,39 @@ public class VisitService {
         token.setVisit(visit);
         token.setExpiryDate(LocalDateTime.now().plusHours(TOKEN_EXPIRE_TIME));
         visitTokenRepository.save(token);
-        notificationService.sendMailForPasswordReset(token.getToken(), patient.getEmail());
+        notificationService.sendMailForVisitCreation(patient.getEmail(), visit);
         return visit;
     }
 
     @Transactional
-    public Visit confirm(String token) {
-        VisitToken visitToken = visitTokenRepository.findByToken(token)
-                .orElseThrow(() -> new EntityNotFoundException("Token not found"));
-        checkIfTokenExpired(visitToken);
-        Visit visit = visitRepository.findById(visitToken.getVisit().getId())
-                .orElseThrow(() -> new EntityNotFoundException("VISIT", visitToken.getVisit().getId()));
+    public Visit confirm(VisitActionCommand visitActionCommand) {
+        VisitToken visitToken = visitTokenRepository.findByVisit_Id(visitActionCommand.getVisitId())
+                .orElseThrow(() -> new EntityNotFoundException("VISIT_TOKEN", visitActionCommand.getVisitId()));
+        Visit visit = getVisitWithProperAccess(visitToken);
         visit.setStatus(VisitStatus.CONFIRMED);
+        notificationService.sendMailForVisitConfirmation(visit.getPatient().getEmail(), visit);
         return visit;
     }
 
     @Transactional
-    public Visit cancel(String token) {
-        VisitToken visitToken = visitTokenRepository.findByToken(token)
-                .orElseThrow(() -> new EntityNotFoundException("Token not found"));
-        checkIfTokenExpired(visitToken);
-        Visit visit = visitRepository.findById(visitToken.getVisit().getId())
-                .orElseThrow(() -> new EntityNotFoundException("VISIT", visitToken.getVisit().getId()));
+    public Visit cancel(VisitActionCommand visitActionCommand) {
+        VisitToken visitToken = visitTokenRepository.findByVisit_Id(visitActionCommand.getVisitId())
+                .orElseThrow(() -> new EntityNotFoundException("VISIT_TOKEN", visitActionCommand.getVisitId()));
+        Visit visit = getVisitWithProperAccess(visitToken);
         visit.setStatus(VisitStatus.CANCELLED);
+        notificationService.sendMailForVisitCancellation(visit.getPatient().getEmail(), visit);
         return visit;
+    }
+
+    public Visit getVisitById(long id) {
+        return visitRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("VISIT", id));
+    }
+
+    private Visit getVisitWithProperAccess(VisitToken visitToken) {
+        checkIfTokenExpired(visitToken);
+        return visitRepository.findById(visitToken.getVisit().getId())
+                .orElseThrow(() -> new EntityNotFoundException("VISIT", visitToken.getVisit().getId()));
     }
 
     private void checkIfTokenExpired(VisitToken token) {
@@ -107,8 +117,4 @@ public class VisitService {
         }
     }
 
-    public Visit getStatusOfVisit(long id) {
-        return visitRepository.findById(id)
-                .orElseThrow(() -> new VisitException("Visit not found"));
-    }
 }

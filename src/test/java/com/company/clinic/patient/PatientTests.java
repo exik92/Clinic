@@ -98,7 +98,7 @@ public class PatientTests {
         EntityNotFoundException throwable = (EntityNotFoundException) catchThrowable(() -> patientService.getPatientById(1));
 
         //then
-        assertTrue(throwable.getMessage().contains("Patient not found"));
+        assertTrue(throwable.getMessage().contains("No PATIENT found with id: 1"));
     }
 
     @Test
