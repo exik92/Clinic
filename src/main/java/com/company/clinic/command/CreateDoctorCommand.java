@@ -12,10 +12,10 @@ import java.util.Objects;
 
 public class CreateDoctorCommand {
 
-    @NotEmpty(message = "First name cannot be empty")
+    @NotEmpty(message = "DOCTOR_FIRST_NAME_EMPTY")
     private String firstName;
 
-    @NotEmpty(message = "Last name cannot be empty")
+    @NotEmpty(message = "DOCTOR_LAST_NAME_EMPTY")
     private String lastName;
 
     @NotNull
@@ -24,10 +24,10 @@ public class CreateDoctorCommand {
     @NotNull
     private MedicalAnimalSpecialization medicalAnimalSpecialization;
 
-    @PositiveOrZero(message = "Hourly rate should be greater or equal 0")
+    @PositiveOrZero(message = "DOCTOR_HOURLY_RATE_NEGATIVE")
     private int hourlyRate;
 
-    @Positive(message = "NIP can not be negative")
+    @Positive(message = "DOCTOR_NIP_NEGATIVE")
     @DoctorNotExistsByNip
     private Long nip;
 

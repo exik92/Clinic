@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.company.clinic.dto.ErrorCode.VALIDATION_ERROR;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -22,17 +23,20 @@ public class MethodArgumentNotValidExceptionHandler {
     public ResponseEntity<List<ErrorDto>> methodArgumentNotValidException(MethodArgumentNotValidException ex) {
 
         List<ErrorDto> valErrors = ex.getBindingResult().getAllErrors().stream()
-                .map(error -> new ErrorDto(
-                        ex.getClass().getName(),
-                        error.getDefaultMessage(),
-                        ErrorCode.getCodeFromValue(error.getDefaultMessage())))
-                .collect(Collectors.toList());
-
-
-        return new ResponseEntity<>(
-                valErrors,
-                BAD_REQUEST
-        );
+                .map(error -> {
+                    try {
+                        return new ErrorDto(
+                                ex.getClass().getName(),
+                                ErrorCode.valueOf(error.getDefaultMessage()).getName(),
+                                ErrorCode.valueOf(error.getDefaultMessage()));
+                    } catch (IllegalArgumentException exc) {
+                        return new ErrorDto(
+                                ex.getClass().getName(),
+                                error.getDefaultMessage(),
+                                VALIDATION_ERROR);
+                    }
+                }).collect(Collectors.toList());
+        return new ResponseEntity<>(valErrors, BAD_REQUEST);
     }
 
 }

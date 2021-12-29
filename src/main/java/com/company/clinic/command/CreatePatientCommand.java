@@ -2,7 +2,7 @@ package com.company.clinic.command;
 
 import com.company.clinic.model.patient.AnimalRace;
 import com.company.clinic.model.patient.AnimalType;
-import com.company.clinic.validation.patient.PatientNotExistsByEmail;
+import com.company.clinic.validation.patient.PatientAlreadyExistsByEmail;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -11,7 +11,7 @@ import java.util.Objects;
 
 public class CreatePatientCommand {
 
-    @NotEmpty(message = "Animal name cannot be empty")
+    @NotEmpty(message = "PATIENT_ANIMAL_NAME_EMPTY")
     private String nameOfAnimal;
 
     @NotNull
@@ -20,14 +20,14 @@ public class CreatePatientCommand {
     @NotNull
     private AnimalRace race;
 
-    @Positive(message = "Age should be positive")
+    @Positive(message = "PATIENT_AGE_NOT_POSITIVE")
     private int age;
 
-    @NotEmpty(message = "Owner name cannot be empty")
+    @NotEmpty(message = "PATIENT_NAME_EMPTY")
     private String nameOfOwner;
 
-    @NotEmpty(message = "Email cannot be empty")
-    @PatientNotExistsByEmail
+    @NotEmpty(message = "PATIENT_EMAIL_EMPTY")
+    @PatientAlreadyExistsByEmail
     private String email;
 
     public CreatePatientCommand() {

@@ -3,7 +3,6 @@ package com.company.clinic.controller;
 import com.company.clinic.command.CreateDoctorCommand;
 import com.company.clinic.dto.DoctorDto;
 import com.company.clinic.model.doctor.Doctor;
-import com.company.clinic.model.doctor.MedicalSpecialization;
 import com.company.clinic.service.DoctorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -14,9 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/doctors")
@@ -45,22 +41,10 @@ public class DoctorController {
         return ResponseEntity.ok(doctorDto);
     }
 
-//    @GetMapping
-//    public ResponseEntity<List<DoctorDto>> getAllDoctors(@PageableDefault(size = 10, page = 0, sort = "lastName") Pageable pageable) {
-//        List<DoctorDto> doctors = doctorService.findAll(pageable)
-//                .stream()
-//                .map(doctor -> modelMapper.map(doctor, DoctorDto.class))
-//                .collect(Collectors.toList());
-//        return ResponseEntity.ok(doctors);
-//    }
-
     @GetMapping
     public Page<DoctorDto> getAllDoctors(@PageableDefault(size = 10, page = 0, sort = "lastName") Pageable pageable) {
-        List<DoctorDto> doctors = doctorService.findAll(pageable)
-                .stream()
-                .map(doctor -> modelMapper.map(doctor, DoctorDto.class))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(doctors);
+        return doctorService.findAll(pageable)
+                .map(doctor -> modelMapper.map(doctor, DoctorDto.class));
     }
 
     @PutMapping("/fire/{id}")
