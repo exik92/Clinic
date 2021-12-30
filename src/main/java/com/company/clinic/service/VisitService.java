@@ -16,6 +16,7 @@ import com.company.clinic.repository.VisitRepository;
 import com.company.clinic.repository.VisitTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -42,7 +43,7 @@ public class VisitService {
         this.notificationService = notificationService;
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public Visit createVisit(CreateVisitCommand createVisitCommand) {
         long doctorId = createVisitCommand.getDoctorId();
         long patientId = createVisitCommand.getPatientId();
