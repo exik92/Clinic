@@ -19,6 +19,4 @@ alter table visit_token add constraint visit_token_uq_token unique (token);
 
 alter table user_roles add constraint user_roles_role_id foreign key (role_id) references role;
 alter table user_roles add constraint user_roles_user_id foreign key (user_id) references users;
-alter table visit add constraint visit_doctor_id foreign key (doctor_id) references doctor;
-alter table visit add constraint visit_patient_id foreign key (patient_id) references patient;
 alter table visit_token add constraint visit_token_visit_id foreign key (visit_id) references visit;

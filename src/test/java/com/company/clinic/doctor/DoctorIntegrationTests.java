@@ -3,9 +3,13 @@ package com.company.clinic.doctor;
 import com.company.clinic.command.CreateDoctorCommand;
 import com.company.clinic.common.IntegrationTest;
 import com.company.clinic.dto.DoctorDto;
+import com.company.clinic.dto.PatientDto;
 import com.company.clinic.model.doctor.MedicalAnimalSpecialization;
 import com.company.clinic.model.doctor.MedicalSpecialization;
+import com.company.clinic.util.TypeUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
@@ -23,17 +27,17 @@ public class DoctorIntegrationTests extends IntegrationTest {
     public void getAllDoctors() throws Exception {
         //when
         MvcResult result = mvc.perform(MockMvcRequestBuilders
-                .get("/doctors")
-                .header("Authorization", "Bearer " + jwtToken)
-                .accept(MediaType.APPLICATION_JSON))
+                        .get("/doctors")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .accept(MediaType.APPLICATION_JSON))
                 //then
                 .andExpect(status().isOk())
                 .andReturn();
 
         String content = result.getResponse().getContentAsString();
-        List<DoctorDto> doctors = objectMapper.readValue(content, new TypeReference<List<DoctorDto>>() {
-        });
-        assertThat(doctors).hasSize(0);
+        JavaType type = objectMapper.getTypeFactory().constructParametricType(TypeUtils.TestPageResult.class, DoctorDto.class);
+        TypeUtils.TestPageResult<DoctorDto> response = objectMapper.readValue(content, type);
+        assertThat(response.getContent()).hasSize(0);
     }
 
     @Test
@@ -44,9 +48,9 @@ public class DoctorIntegrationTests extends IntegrationTest {
 
         //when
         MvcResult result = mvc.perform(MockMvcRequestBuilders
-                .get("/doctors/" + dto.getId())
-                .header("Authorization", "Bearer " + jwtToken)
-                .accept(MediaType.APPLICATION_JSON))
+                        .get("/doctors/" + dto.getId())
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -62,13 +66,17 @@ public class DoctorIntegrationTests extends IntegrationTest {
         addDoctor(createDoctorCommand, jwtToken);
 
         // try again
-        mvc.perform(MockMvcRequestBuilders
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
                         .post("/doctors")
                         .header("Authorization", "Bearer " + jwtToken)
                         .content(objectMapper.writeValueAsString(createDoctorCommand))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        Assertions.assertTrue(content.contains("Doctor with NIP exist"));
     }
 
     @Test
@@ -79,24 +87,25 @@ public class DoctorIntegrationTests extends IntegrationTest {
 
         //when
         mvc.perform(MockMvcRequestBuilders
-                .put("/doctors/fire/" + dto.getId())
-                .header("Authorization", "Bearer " + jwtToken)
-                .accept(MediaType.APPLICATION_JSON))
+                        .put("/doctors/fire/" + dto.getId())
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
         //then
         MvcResult result = mvc.perform(MockMvcRequestBuilders
-                .get("/doctors")
-                .header("Authorization", "Bearer " + jwtToken)
-                .accept(MediaType.APPLICATION_JSON))
+                        .get("/doctors")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
         //then
         String content = result.getResponse().getContentAsString();
-        List<DoctorDto> doctors = objectMapper.readValue(content, new TypeReference<List<DoctorDto>>() {
-        });
-        assertThat(doctors).hasSize(0);
+
+        JavaType type = objectMapper.getTypeFactory().constructParametricType(TypeUtils.TestPageResult.class, DoctorDto.class);
+        TypeUtils.TestPageResult<DoctorDto> response = objectMapper.readValue(content, type);
+        assertThat(response.getContent()).hasSize(0);
     }
 
     @Test
@@ -107,19 +116,18 @@ public class DoctorIntegrationTests extends IntegrationTest {
 
         //when
         MvcResult result = mvc.perform(MockMvcRequestBuilders
-                .get("/doctors")
-                .header("Authorization", "Bearer " + jwtToken)
-                .accept(MediaType.APPLICATION_JSON))
+                        .get("/doctors")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
         //then
         String content = result.getResponse().getContentAsString();
-        List<DoctorDto> doctors = objectMapper.readValue(content, new TypeReference<List<DoctorDto>>() {
-        });
-        assertThat(doctors.get(0).getFirstName()).isEqualTo(createDoctorCommand.getFirstName());
+        JavaType type = objectMapper.getTypeFactory().constructParametricType(TypeUtils.TestPageResult.class, DoctorDto.class);
+        TypeUtils.TestPageResult<DoctorDto> response = objectMapper.readValue(content, type);
+        assertThat(response.getContent().get(0).getFirstName()).isEqualTo(createDoctorCommand.getFirstName());
     }
-
 
 
     private CreateDoctorCommand getDoctorDto() {

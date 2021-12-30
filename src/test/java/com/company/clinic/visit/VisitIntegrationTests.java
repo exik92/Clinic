@@ -3,13 +3,17 @@ package com.company.clinic.visit;
 import com.company.clinic.command.CreateDoctorCommand;
 import com.company.clinic.command.CreatePatientCommand;
 import com.company.clinic.command.CreateVisitCommand;
+import com.company.clinic.command.VisitActionCommand;
 import com.company.clinic.common.IntegrationTest;
-import com.company.clinic.dto.*;
+import com.company.clinic.dto.DoctorDto;
+import com.company.clinic.dto.PatientDto;
+import com.company.clinic.dto.VisitDto;
 import com.company.clinic.exception.EntityNotFoundException;
 import com.company.clinic.model.doctor.MedicalAnimalSpecialization;
 import com.company.clinic.model.doctor.MedicalSpecialization;
 import com.company.clinic.model.patient.AnimalRace;
 import com.company.clinic.model.patient.AnimalType;
+import com.company.clinic.model.visit.VisitAction;
 import com.company.clinic.model.visit.VisitStatus;
 import com.company.clinic.model.visit.VisitToken;
 import com.company.clinic.repository.VisitTokenRepository;
@@ -28,7 +32,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class VisitIntegrationTests extends IntegrationTest {
@@ -69,7 +72,8 @@ public class VisitIntegrationTests extends IntegrationTest {
         CreatePatientCommand createPatientCommand = getPatientDto();
         PatientDto patientDto = addPatient(createPatientCommand, jwtToken);
 
-        CreateVisitCommand createVisitCommand = new CreateVisitCommand(23, patientDto.getId(), LocalDateTime.now());
+        long doctorId = 23;
+        CreateVisitCommand createVisitCommand = new CreateVisitCommand(doctorId, patientDto.getId(), LocalDateTime.now());
 
         //when
         MvcResult result = mvc.perform(MockMvcRequestBuilders
@@ -83,8 +87,9 @@ public class VisitIntegrationTests extends IntegrationTest {
 
         //then
         String content = result.getResponse().getContentAsString();
-        ErrorDto errorDto = objectMapper.readValue(content, ErrorDto.class);
-        assertThat(errorDto.getErrorCode().equals(ErrorCode.VALIDATION_ERROR));
+        Assertions.assertTrue
+                (content.contains(
+                        String.format("Doctor with id: %s does not exist", doctorId)));
     }
 
     @Test
@@ -93,7 +98,8 @@ public class VisitIntegrationTests extends IntegrationTest {
         CreateDoctorCommand createDoctorCommand = getDoctorDto();
         DoctorDto doctorDto = addDoctor(createDoctorCommand, jwtToken);
 
-        CreateVisitCommand createVisitCommand = new CreateVisitCommand(doctorDto.getId(), 12, LocalDateTime.now());
+        long patientId = 12;
+        CreateVisitCommand createVisitCommand = new CreateVisitCommand(doctorDto.getId(), patientId, LocalDateTime.now());
 
         //when
         MvcResult result = mvc.perform(MockMvcRequestBuilders
@@ -107,8 +113,9 @@ public class VisitIntegrationTests extends IntegrationTest {
 
         //then
         String content = result.getResponse().getContentAsString();
-        ErrorDto errorDto = objectMapper.readValue(content, ErrorDto.class);
-        assertThat(errorDto.getErrorCode()).isEqualTo(ErrorCode.VALIDATION_ERROR);
+        Assertions.assertTrue
+                (content.contains(
+                        String.format("Patient with id: %s does not exist", patientId)));
     }
 
     @Test
@@ -122,12 +129,15 @@ public class VisitIntegrationTests extends IntegrationTest {
 
         CreateVisitCommand createVisitCommand = new CreateVisitCommand(doctorDto.getId(), patientDto.getId(), LocalDateTime.now());
         VisitDto visitDto = addVisit(createVisitCommand, jwtToken);
-        String token = getTokenForGivenId(visitDto.getId());
+        VisitActionCommand visitActionCommand = new VisitActionCommand(visitDto.getId(), VisitAction.CONFIRM);
+
 
         //when
         mvc.perform(MockMvcRequestBuilders
-                        .get("/visits/confirm?token=" + token)
+                        .put("/visits/confirm")
                         .header("Authorization", "Bearer " + jwtToken)
+                        .content(objectMapper.writeValueAsString(visitActionCommand))
+                        .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
@@ -185,8 +195,9 @@ public class VisitIntegrationTests extends IntegrationTest {
                 .accept(MediaType.APPLICATION_JSON));
         // then
         String contentAsString = perform.andReturn().getResponse().getContentAsString();
-        System.out.println(contentAsString);
-        Assertions.assertTrue(contentAsString.contains("PatientHasFreeTime"));
+        Assertions.assertTrue
+                (contentAsString.contains(
+                        String.format("Patient with id: %s has another visit on this time", patientDto.getId())));
     }
 
 
@@ -220,12 +231,9 @@ public class VisitIntegrationTests extends IntegrationTest {
 
         // then
         String contentAsString = perform.andReturn().getResponse().getContentAsString();
-        Assertions.assertTrue(contentAsString.contains("DoctorHasFreeTime")); // zmienic na nowa postac resposnea:
-//        {
-//            "exception": "org.springframework.web.bind.MethodArgumentNotValidException",
-//                "exceptionMessage": "Doctor with id: 1 has another visit on this time",
-//                "errorCode": "VALIDATION_ERROR"
-//        }
+        Assertions.assertTrue(
+                contentAsString.contains(
+                        String.format("Doctor with id: %s has another visit on this time", doctorDto.getId())));
 
     }
 
@@ -240,12 +248,14 @@ public class VisitIntegrationTests extends IntegrationTest {
 
         CreateVisitCommand createVisitCommand = new CreateVisitCommand(doctorDto.getId(), patientDto.getId(), LocalDateTime.now());
         VisitDto dto = addVisit(createVisitCommand, jwtToken);
-        String token = getTokenForGivenId(dto.getId());
+        VisitActionCommand visitActionCommand = new VisitActionCommand(dto.getId(), VisitAction.CONFIRM);
 
         //when
         mvc.perform(MockMvcRequestBuilders
-                        .get("/visits/cancel?token=" + token)
+                        .put("/visits/cancel")
                         .header("Authorization", "Bearer " + jwtToken)
+                        .content(objectMapper.writeValueAsString(visitActionCommand))
+                        .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
