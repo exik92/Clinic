@@ -6,6 +6,10 @@ import com.company.clinic.command.CreateVisitCommand;
 import com.company.clinic.dto.DoctorDto;
 import com.company.clinic.dto.PatientDto;
 import com.company.clinic.dto.VisitDto;
+import com.company.clinic.repository.DoctorRepository;
+import com.company.clinic.repository.PatientRepository;
+import com.company.clinic.repository.VisitRepository;
+import com.company.clinic.repository.VisitTokenRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,13 +31,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ActiveProfiles("test")
 @TestPropertySource("/credentials.properties")
 public abstract class IntegrationTest {
 
     @Autowired
     protected MockMvc mvc;
+
+    @Autowired
+    private VisitTokenRepository visitTokenRepository;
+
+    @Autowired
+    private DoctorRepository doctorRepository;
+
+    @Autowired
+    private PatientRepository patientRepository;
+
+    @Autowired
+    private VisitRepository visitRepository;
 
     @Value("${test.username}")
     protected String username;
@@ -47,6 +62,10 @@ public abstract class IntegrationTest {
 
     @BeforeEach
     public void initEach() throws Exception {
+        visitTokenRepository.deleteAll();
+        visitRepository.deleteAll();
+        patientRepository.deleteAll();
+        doctorRepository.deleteAll();
         jwtToken = createUserAndGetJwtToken(mvc, objectMapper, username, password);
     }
 

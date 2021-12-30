@@ -16,12 +16,12 @@ public class Visit {
     private long id;
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "doctorId")
     private Doctor doctor;
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "patientId")
     private Patient patient;
 

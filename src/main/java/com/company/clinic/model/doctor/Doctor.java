@@ -16,6 +16,7 @@ public class Doctor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @Column(name = "doctor_id", unique = true, nullable = false)
     private long id;
 
     private String firstName;
